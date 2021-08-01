@@ -1,0 +1,22 @@
+Initial steps
+
+Hi Léo,
+
+here is the excel table attached.
+
+The values are line scans (1um) across expanded centrioles (for each image 3 measurements in centriole and 3 measurements in axoneme).
+The problem is that the pixel size/ magnification/ expansion was different between different images.
+Hence 1um length has more or less number of pixels.
+
+After interpolation we would like to have all measurements with the same number of datapoints (that is 112 datapoints).
+In a next step we would like to average/ align  the peak maxima for basal body or axoneme (to be seen if this is meaningful- maybe the data is too noisy and all peaks are lost by averaging?).
+
+Expected outcome:
+1) we are sure to have a wider peak for basal body than axoneme. (FWHM), for this averaging will work.
+2) We think (but are less sure)  that we may have 4 peaks in basal body and only 3 peaks in axoneme.
+But maybe the peak-peak distance is too variable. Do you have other suggestions how to show this convincingly?
+
+As mentioned, maybe you want to chat about that after your (and my) vacation.
+
+best,
+Alexandra
