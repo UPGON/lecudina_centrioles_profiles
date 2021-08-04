@@ -14,6 +14,7 @@ Goal:
 After interpolation, we would like to have all measurements with the same number of data points (that is 112 data points).
 
 Q: why 112 points and not 100?
+Q: is the picture name id relevant?
 In a next step we would like to average/ align the peak maxima for basal body or axoneme (to be seen if this is meaningful- maybe the data is too noisy and all peaks are lost by averaging?).
 
 Expected outcome:

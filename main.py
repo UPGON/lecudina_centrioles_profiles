@@ -29,16 +29,7 @@ def main():
             col_curr = col
             # l1, l2, l3 = [int(l) for l in col_curr.split('_')]
             profile = data.iloc[1:, c].dropna().to_numpy()
-            print(profile.max())
         else:
-            roi = data.iloc[0, c]
-
-            if type(roi) != str:
-                continue
-            match = re.match(r'^([Aa]xonema|[Bb]asal [Bb]ody) ([MCIVX]+)$', roi)
-
-            if len(match.groups()) == 2:
-                roi_type, roi_id = match.groups()
 
             intensities = data.iloc[1:, c].dropna().to_numpy()
 
@@ -47,9 +38,19 @@ def main():
             resampled = resampled.flatten().T
             image_profiles[profile_inc, :] = resampled
             profile_inc += 1
-            container[(col_curr, roi_type, roi_id)] = resampled
 
-    cv2.imwrite('out/profile.png', image_profiles)
+            roi = data.iloc[0, c]
+            if type(roi) != str:
+                continue
+            match = re.match(r'^([Aa]xonema|[Bb]asal [Bb]ody) ([MCIVX]+)$', roi)
+
+            if len(match.groups()) == 2:
+                roi_type, roi_id = match.groups()
+
+            container[(col_curr, roi_type, roi_id)] = resampled
+    profile_df = pd.DataFrame(container, index=np.linspace(0, 1, length_target).round(3))
+    profile_df = profile_df.T
+    profile_df.to_excel('out/resampled.xlsx')
 
     print(0)
 
