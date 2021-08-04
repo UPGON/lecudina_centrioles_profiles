@@ -1,10 +1,13 @@
 import re
 
+import cv2
 import numpy as np
 import pandas as pd
-from scipy import interpolate
-
+import scipy.interpolate as interp
 from matplotlib import pyplot as plt
+
+
+# interp_function = interp.InterpolatedUnivariateSpline(x, y)
 
 
 def main():
@@ -18,29 +21,42 @@ def main():
     l1, l2, l3 = -1, -1, -1
     roi_type = ''
     roi_id = -1
+    pic_n = len([i for i in picture_id_row if i.startswith('Unnamed')])
+    image_profiles = np.zeros((pic_n, 112), dtype=np.uint8)
+    profile_inc = 0
     for c, col in enumerate(picture_id_row):
-        print(c, col)
         if not col.startswith('Unnamed'):
-            print(f'\nCreating new sub df from {c, col}')
             col_curr = col
-            l1, l2, l3 = [int(l) for l in col_curr.split('_')]
-            container[(l1, l2, l3, 'x')] = data.iloc[1:, c].to_numpy()
+            # l1, l2, l3 = [int(l) for l in col_curr.split('_')]
+            profile = data.iloc[1:, c].dropna().to_numpy()
+            print(profile.max())
         else:
-            print(f'...adding new roi to sub df {col_curr}')
             roi = data.iloc[0, c]
 
             if type(roi) != str:
                 continue
             match = re.match(r'^([Aa]xonema|[Bb]asal [Bb]ody) ([MCIVX]+)$', roi)
+
             if len(match.groups()) == 2:
                 roi_type, roi_id = match.groups()
-                profile = data.iloc[1:, c].dropna().to_numpy()
-                interpolated = profile
-                container[(l1, l2, l3, roi_type, roi_id)] = interpolated
+
+            intensities = data.iloc[1:, c].dropna().to_numpy()
+
+            intensities_int = intensities.astype(np.uint8)
+            resampled = cv2.resize(intensities_int, (1, 112))
+            resampled = resampled.flatten().T
+            image_profiles[profile_inc, :] = resampled
+            profile_inc += 1
+            container[(col_curr, roi_type, roi_id)] = resampled
+
+    cv2.imwrite('out/profile.png', image_profiles)
 
     fig, ax = plt.subplots(1, 1)
     for k, v in container.items():
-        ax.plot(v)
+        if k[1] == 'x':
+            profile = v
+        else:
+            ax.plot(profile, v, 'k-', alpha=.1)
     fig.savefig('out/fig.pdf')
 
     print(0)
