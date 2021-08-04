@@ -1,6 +1,5 @@
 import re
 
-import cv2
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
@@ -14,31 +13,21 @@ def main():
     picture_id_row = data.columns
     container = {}
 
-    length_target = 32
+    length_target = 112
 
     col_curr = None
-    l1, l2, l3 = -1, -1, -1
     roi_type = ''
     roi_id = -1
-    pic_n = len([i for i in picture_id_row if i.startswith('Unnamed')])
-    image_profiles = np.zeros((pic_n, length_target), dtype=np.uint8)
-    profile_inc = 0
+    profile = None
+
+    x = np.linspace(0, 1, length_target, endpoint=True)
 
     for c, col in enumerate(picture_id_row):
+        print(c)
         if not col.startswith('Unnamed'):
             col_curr = col
-            # l1, l2, l3 = [int(l) for l in col_curr.split('_')]
             profile = data.iloc[1:, c].dropna().to_numpy()
         else:
-
-            intensities = data.iloc[1:, c].dropna().to_numpy()
-
-            intensities_int = intensities.astype(np.uint8)
-            resampled = cv2.resize(intensities_int, (1, length_target))
-            resampled = resampled.flatten().T
-            image_profiles[profile_inc, :] = resampled
-            profile_inc += 1
-
             roi = data.iloc[0, c]
             if type(roi) != str:
                 continue
@@ -47,10 +36,18 @@ def main():
             if len(match.groups()) == 2:
                 roi_type, roi_id = match.groups()
 
-            container[(col_curr, roi_type, roi_id)] = resampled
-    profile_df = pd.DataFrame(container, index=np.linspace(0, 1, length_target).round(3))
+            intensities = data.iloc[1:, c].dropna().to_numpy()
+            f = interp1d(profile, intensities, fill_value='extrapolate')
+
+            container[(col_curr, roi_type, roi_id)] = f(x).astype(np.uint8)
+
+    profile_df = pd.DataFrame(container, index=x.round(3))
     profile_df = profile_df.T
-    profile_df.to_excel('out/resampled.xlsx')
+    profile_df.index.set_names(['picture', 'roi', 'replicate'], inplace=True)
+    profile_df = profile_df.reset_index()
+    profile_df.to_excel('out/profiles_interp.xlsx', index=False)
+
+
 
     print(0)
 
