@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from matplotlib import pyplot as plt
 
 
@@ -22,10 +21,12 @@ def main():
     for p, pic in enumerate(picture_names):
         ax = axs[p, :]
         sub = data.loc[pic, :]
+
         for r, roi in enumerate(roi_names):
             sax = ax[r]
             ssub = sub.loc[roi, :]
             sax.plot(ssub.mean(), color='blue', lw=1, ls='-', alpha=1)
+
             for _, prof in ssub.iterrows():
                 sax.plot(prof, color='blue', lw=.5, ls='-', alpha=.2)
                 sax.set_xlim(0, 1)

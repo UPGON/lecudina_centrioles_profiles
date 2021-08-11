@@ -3,7 +3,6 @@ import re
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-from matplotlib import pyplot as plt
 
 
 def main():
@@ -46,10 +45,6 @@ def main():
     profile_df.index.set_names(['picture', 'roi', 'replicate'], inplace=True)
     profile_df = profile_df.reset_index()
     profile_df.to_excel('out/profiles_interp.xlsx', index=False)
-
-
-
-    print(0)
 
 
 if __name__ == '__main__':
